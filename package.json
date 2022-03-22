@@ -1,6 +1,6 @@
 {
   "name": "awesome-typed-css-modules",
-  "version": "0.0.0",
+  "version": "7.0.0",
   "description": "TypeScript type definition generator for Stylus/LESS/SASS/SCSS CSS Modules",
   "main": "dist/lib/main.js",
   "author": "Dem Ching",
