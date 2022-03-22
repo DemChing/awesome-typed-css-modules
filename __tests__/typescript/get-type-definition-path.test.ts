@@ -1,4 +1,5 @@
 import path from "path";
+import slash from "slash";
 
 import { DEFAULT_OPTIONS } from "../../lib/load";
 import { getTypeDefinitionPath } from "../../lib/typescript";
@@ -9,7 +10,7 @@ describe("getTypeDefinitionPath", () => {
   it("returns the type definition path", () => {
     const outputPath = getTypeDefinitionPath(cssFilePath, DEFAULT_OPTIONS);
 
-    expect(outputPath).toEqual(`${cssFilePath}.d.ts`);
+    expect(outputPath).toEqual(slash(`${cssFilePath}.d.ts`));
   });
 
   describe("when outputFolder is passed", () => {
@@ -24,7 +25,7 @@ describe("getTypeDefinitionPath", () => {
         "__generated__/some/path/style.scss.d.ts"
       );
 
-      expect(outputPath).toEqual(generatedFilePath);
+      expect(outputPath).toEqual(slash(generatedFilePath));
     });
   });
 });

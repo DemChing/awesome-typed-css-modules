@@ -1,16 +1,19 @@
-import sass from "sass";
-import nodeSass from "node-sass";
+import { getPreprocessor } from "../../lib/implementations";
 
-import { getImplementation } from "../../lib/implementations";
-
-describe("getImplementation", () => {
-  it("returns the correct implementation when explicitly passed", () => {
-    expect(getImplementation("node-sass")).toEqual(nodeSass);
-    expect(getImplementation("sass")).toEqual(sass);
+describe("getPreprocessor", () => {
+  it("returns the correct preprocessor when explicitly passed", () => {
+    expect(getPreprocessor("file.scss", "node-sass")).toEqual("node-sass");
+    expect(getPreprocessor("file.scss", "sass")).toEqual("sass");
+    expect(getPreprocessor("file.styl", "node-sass")).toEqual("stylus");
+    expect(getPreprocessor("file.less", "sass")).toEqual("less");
+    expect(getPreprocessor("file.css", "sass")).toEqual("css");
   });
 
-  it("returns the correct default implementation if it is invalid", () => {
-    expect(getImplementation("wat-sass" as any)).toEqual(nodeSass);
-    expect(getImplementation()).toEqual(nodeSass);
+  it("returns the correct default preprocessor if it is invalid", () => {
+    expect(getPreprocessor("file.scss", "wat-sass" as any)).toEqual(
+      "node-sass"
+    );
+    expect(getPreprocessor("file.scss")).toEqual("node-sass");
+    expect(getPreprocessor("file.invalid")).toEqual("css");
   });
 });

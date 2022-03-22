@@ -9,16 +9,18 @@ import {
   generate,
   listDifferent,
   setAlertsLogLevel,
+  addIgnore,
+  FileExtensions,
 } from "./core";
 
 export const main = async (
   pattern: string,
   cliOptions: Partial<CLIOptions>
 ) => {
-  const configOptions = await loadConfig();
+  const configOptions = await loadConfig(cliOptions.configFile);
   const options = mergeOptions(cliOptions, configOptions);
 
-  setAlertsLogLevel(options.logLevel);
+  if (options.logLevel) setAlertsLogLevel(options.logLevel);
 
   // When the provided pattern is a directory construct the proper glob to find
   // all .scss files within that directory. Also, add the directory to the
@@ -32,17 +34,22 @@ export const main = async (
     }
 
     // When the pattern provide is a directory, assume all .scss files within.
-    pattern = slash(path.resolve(pattern, "**/*.scss"));
+    pattern = slash(
+      path.resolve(pattern, `**/*.@(${FileExtensions.join("|")})`)
+    );
   }
 
+  options.ignore = addIgnore(options);
+
   if (options.listDifferent) {
-    listDifferent(pattern, options);
-    return;
+    return await listDifferent(pattern, options);
   }
 
   if (options.watch) {
     watch(pattern, options);
   } else {
-    await generate(pattern, options);
+    return await generate(pattern, options);
   }
 };
+
+export { CorePlugins, CoreV8Plugins } from "./sass";

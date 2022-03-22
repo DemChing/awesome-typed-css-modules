@@ -15,7 +15,7 @@ describeAllImplementations((implementation) => {
       exit.mockRestore();
     });
 
-    test("logs invalid type definitions and exits with 1", async () => {
+    test("logs invalid type definitions and does not exit", async () => {
       const pattern = `${__dirname}/../**/*.scss`;
 
       await listDifferent(pattern, {
@@ -41,7 +41,7 @@ describeAllImplementations((implementation) => {
         outputFolder: null,
       });
 
-      expect(exit).toHaveBeenCalledWith(1);
+      expect(exit).not.toHaveBeenCalled();
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`[INVALID TYPES] Check type definitions for`)
       );
@@ -50,7 +50,7 @@ describeAllImplementations((implementation) => {
       );
     });
 
-    test("logs nothing and does not exit when formatted using Prettier", async () => {
+    test("logs necessary only and does not exit when formatted using Prettier", async () => {
       const pattern = `${__dirname}/list-different/formatted.scss`;
 
       await listDifferent(pattern, {
@@ -70,11 +70,11 @@ describeAllImplementations((implementation) => {
         outputFolder: null,
       });
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.log).toBeCalledTimes(2);
       expect(exit).not.toHaveBeenCalled();
     });
 
-    test("logs nothing and does not exit if all files are valid", async () => {
+    test("logs necessary only and does not exit if all files are valid", async () => {
       const pattern = `${__dirname}/../dummy-styles/**/style.scss`;
 
       await listDifferent(pattern, {
@@ -94,10 +94,10 @@ describeAllImplementations((implementation) => {
       });
 
       expect(exit).not.toHaveBeenCalled();
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.log).toBeCalledTimes(1);
     });
 
-    test("logs not generated type file and exits with 1", async () => {
+    test("logs not generated type file", async () => {
       const pattern = `${__dirname}/list-different/no-generated.scss`;
 
       await listDifferent(pattern, {
@@ -116,7 +116,6 @@ describeAllImplementations((implementation) => {
         outputFolder: null,
       });
 
-      expect(exit).toHaveBeenCalledWith(1);
       expect(console.log).toBeCalledWith(
         expect.stringContaining(
           `[INVALID TYPES] Type file needs to be generated for`
@@ -124,6 +123,9 @@ describeAllImplementations((implementation) => {
       );
       expect(console.log).toBeCalledWith(
         expect.stringContaining(`no-generated.scss`)
+      );
+      expect(console.log).toBeCalledWith(
+        expect.stringContaining(`Checked 1 file. 1 is invalid.`)
       );
     });
   });

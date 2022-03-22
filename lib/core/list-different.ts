@@ -1,4 +1,3 @@
-import glob from "glob";
 import fs from "fs";
 
 import { alerts } from "./alerts";
@@ -8,30 +7,58 @@ import {
   classNamesToTypeDefinitions,
   getTypeDefinitionPath,
 } from "../typescript";
+import { errorHandler } from "./error-handler";
+import { getFiles } from "./get-files";
+
+type DiffResult = {
+  valid: string[];
+  invalid: string[];
+};
 
 export const listDifferent = async (
   pattern: string,
   options: ConfigOptions
-): Promise<void> => {
-  // Find all the files that match the provided pattern.
-  const files = glob.sync(pattern);
+): Promise<DiffResult> => {
+  let result: DiffResult = {
+    valid: [],
+    invalid: [],
+  };
+  const files = getFiles(pattern, options.ignore);
 
-  if (!files || !files.length) {
-    alerts.notice("No files found.");
-    return;
+  if (!files) {
+    return result;
   }
 
   // Wait for all the files to be checked.
   await Promise.all(files.map((file) => checkFile(file, options))).then(
     (results) => {
-      results.includes(false) && process.exit(1);
+      results.forEach((bool, i) => {
+        result[bool ? "valid" : "invalid"].push(files[i]);
+      });
+
+      alerts.info(
+        `Checked ${results.length} file${results.length === 1 ? `` : `s`}. ${
+          result.invalid.length || "None"
+        } ${result.invalid.length > 1 ? "are" : "is"} invalid.`
+      );
     }
   );
+
+  return result;
+};
+
+const ignoreEOL = (src: string) => {
+  return src.replace(/[\r\n]+/g, "\n");
+};
+const ignoreQuote = (src: string) => {
+  return src.replace(/["']+/g, "");
 };
 
 export const checkFile = (
   file: string,
-  options: ConfigOptions
+  options: ConfigOptions,
+  eol: boolean = true,
+  quote: boolean = true
 ): Promise<boolean> => {
   return new Promise((resolve) =>
     fileToClassNames(file, options)
@@ -46,7 +73,6 @@ export const checkFile = (
           resolve(true);
           return;
         }
-
         const path = getTypeDefinitionPath(file, options);
 
         if (!fs.existsSync(path)) {
@@ -59,7 +85,17 @@ export const checkFile = (
 
         const content = fs.readFileSync(path, { encoding: "utf8" });
 
-        if (content !== typeDefinition) {
+        let _content = content,
+          _typeDefinition = typeDefinition;
+        if (eol) {
+          _content = ignoreEOL(_content);
+          _typeDefinition = ignoreEOL(_typeDefinition);
+        }
+        if (quote) {
+          _content = ignoreQuote(_content);
+          _typeDefinition = ignoreQuote(_typeDefinition);
+        }
+        if (_content !== _typeDefinition) {
           alerts.error(`[INVALID TYPES] Check type definitions for ${file}`);
           resolve(false);
           return;
@@ -68,9 +104,8 @@ export const checkFile = (
         resolve(true);
       })
       .catch((error) => {
-        alerts.error(
-          `An error occurred checking ${file}:\n${JSON.stringify(error)}`
-        );
+        errorHandler(error, `checking ${file}`);
+
         resolve(false);
       })
   );

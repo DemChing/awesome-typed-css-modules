@@ -1,6 +1,7 @@
 import { ConfigOptions } from "../core";
 
 import path from "path";
+import slash from "slash";
 
 const CURRENT_WORKING_DIRECTORY = process.cwd();
 
@@ -22,8 +23,8 @@ export const getTypeDefinitionPath = (
       relativePath
     );
 
-    return `${resolvedPath}.d.ts`;
+    return slash(`${resolvedPath}.d.ts`);
   } else {
-    return `${file}.d.ts`;
+    return slash(`${file}.d.ts`);
   }
 };

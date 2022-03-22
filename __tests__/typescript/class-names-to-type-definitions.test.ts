@@ -1,5 +1,9 @@
 import os from "os";
-import { classNamesToTypeDefinitions, ExportType } from "../../lib/typescript";
+import {
+  classNamesToTypeDefinitions,
+  ExportType,
+  typeDefinitionIgnoreEOLSort as sort,
+} from "../../lib/typescript";
 
 jest.mock("../../lib/prettier/can-resolve", () => ({
   canResolvePrettier: () => false,
@@ -16,11 +20,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         banner: "",
         classNames: ["myClass", "yourClass"],
         exportType: "named",
+        crlf: false,
       });
+      const expected =
+        "export const myClass: string;\nexport const yourClass: string;\n";
 
-      expect(definition).toEqual(
-        "export const myClass: string;\nexport const yourClass: string;\n"
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
 
     it("returns null if there are no class names", async () => {
@@ -38,6 +43,7 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         banner: "",
         classNames: ["myClass", "if"],
         exportType: "named",
+        crlf: false,
       });
 
       expect(definition).toEqual("export const myClass: string;\n");
@@ -51,6 +57,7 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         banner: "",
         classNames: ["myClass", "invalid-variable"],
         exportType: "named",
+        crlf: false,
       });
 
       expect(definition).toEqual("export const myClass: string;\n");
@@ -66,11 +73,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         banner: "",
         classNames: ["myClass", "yourClass"],
         exportType: "default",
+        crlf: false,
       });
+      const expected =
+        "export type Styles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n";
 
-      expect(definition).toEqual(
-        "export type Styles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n"
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
 
     it("returns null if there are no class names", async () => {
@@ -103,11 +111,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         classNames: ["myClass", "yourClass"],
         exportType: "default",
         quoteType: "double",
+        crlf: false,
       });
+      const expected =
+        'export type Styles = {\n  "myClass": string;\n  "yourClass": string;\n};\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n';
 
-      expect(definition).toEqual(
-        'export type Styles = {\n  "myClass": string;\n  "yourClass": string;\n};\n\nexport type ClassNames = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n'
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
 
     it("does not affect named exports", async () => {
@@ -116,11 +125,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         classNames: ["myClass", "yourClass"],
         exportType: "named",
         quoteType: "double",
+        crlf: false,
       });
+      const expected =
+        "export const myClass: string;\nexport const yourClass: string;\n";
 
-      expect(definition).toEqual(
-        "export const myClass: string;\nexport const yourClass: string;\n"
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
   });
 
@@ -131,11 +141,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         classNames: ["myClass", "yourClass"],
         exportType: "default",
         exportTypeName: "Classes",
+        crlf: false,
       });
+      const expected =
+        "export type Styles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type Classes = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n";
 
-      expect(definition).toEqual(
-        "export type Styles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type Classes = keyof Styles;\n\ndeclare const styles: Styles;\n\nexport default styles;\n"
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
 
     it("uses custom value for Styles type name", async () => {
@@ -144,11 +155,12 @@ describe("classNamesToTypeDefinitions (without Prettier)", () => {
         classNames: ["myClass", "yourClass"],
         exportType: "default",
         exportTypeInterface: "IStyles",
+        crlf: false,
       });
+      const expected =
+        "export type IStyles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type ClassNames = keyof IStyles;\n\ndeclare const styles: IStyles;\n\nexport default styles;\n";
 
-      expect(definition).toEqual(
-        "export type IStyles = {\n  'myClass': string;\n  'yourClass': string;\n};\n\nexport type ClassNames = keyof IStyles;\n\ndeclare const styles: IStyles;\n\nexport default styles;\n"
-      );
+      expect(sort(definition)).toEqual(sort(expected));
     });
   });
 

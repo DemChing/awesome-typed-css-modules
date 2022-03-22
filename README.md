@@ -1,3 +1,157 @@
+# awesome-typed-css-modules
+
+This is a fork of [typed-scss-modules](https://github.com/skovy/typed-scss-modules). Adding the ability to process `Stylus`, `LESS`, `SASS` and `SugarSS` files. Also, it allows user to provide custom `PostCSS` plugins and custom parsers to handle extra features on CSS files.
+
+Before using this package, please check if your use case matches these situations:
+
+1. Using only `.scss` files
+2. Not using `PostCSS` features
+3. Not using `importer` feature of `sass`
+
+If all the above situations match your use case, use [typed-scss-modules](https://github.com/skovy/typed-scss-modules) instead. This package doesn't provide any extra feature for you.
+
+## Requirement
+
+In order to use this package, you may need to install extra package or add extra config.
+
+### CSS
+
+If you use pure `CSS` without any `PostCSS` feature or custom syntax, nothing is required.
+
+If you use `PostCSS` plugins or external parser, you need to create a [configuration file](#config-options). Check the instruction of how to use [plugins](#plugins) and [parsers](#parsers).
+
+### SugarSS
+
+You need to install package `sugarss` in order to use this package.
+
+Also, create a [configuration file](#config-options) with `parsers` options like [this](#parsers).
+
+### SCSS / SASS
+
+You need to install package `node-sass` or `sass` in order to use this package. No extra config is required.
+
+Please note that this package will fallback to `node-sass` if you don't specify [`implementation`](#implementation) or `sass` is not installed.
+
+If you use `importer`, remember to check [this](#importer).
+
+### LESS
+
+You need to install package `less` in order to use this package. No extra config is required.
+
+### Stylus
+
+You need to install package `stylus` in order to use this package. No extra config is required.
+
+## Modification
+
+The differences between this package and the original are listed here.
+
+### Name Changed
+
+It is needed to distinguish between `typed-scss-modules` and this package as this package is capable to process files other than `scss`.
+
+You should use `yarn awesome-typed-css-modules` instead even though most of the README still use `typed-scss-modules`. Saying so, using `yarn typed-scss-modules` is still valid.
+
+Similarly, the configuration file should be named as `awesome-typed-css-modules.config.js` or `awesome-typed-css-modules.config.ts`.
+
+Guide for migrating from `typed-scss-modules` can be found [here](examples/awesome-typed-css-modules/README.md#migrate-from-typed-scss-modules).
+
+### Added CLI Options
+
+#### `--crlf`
+
+- **Type**: `boolean`
+- **Default**: Specify `true` to use `\r\n` as EOL, `false` to use `\n`. Fallback to system default if not specified.
+- **Example**: `typed-scss-modules src --crlf`
+
+#### `--includeExtensions`
+
+- **Type**: `("css" | "scss" | "sass" | "less" | "sss" | "styl")[]`
+- **Default**: If an option is passed, it will always match files with the provided file extensions. If this option and `--excludeExtensions` are not passed, it will match all extensions. Beware of conflict pattern like `typed-scss-modules "src/**/*.scss" --includeExtensions less`.
+- **Example**: `typed-scss-modules src --includeExtensions less`
+
+`--excludeExtensions` will be ignored if specify together with `--includeExtensions`.
+
+#### `--excludeExtensions`
+
+- **Type**: `("css" | "scss" | "sass" | "less" | "sss" | "styl")[]`
+- **Default**: If an option is passed, it will always match files without the provided file extensions. If this option and `--includeExtensions` are not passed, it will match all extensions. Beware of conflict pattern like `typed-scss-modules "src/**/*.less" --excludeExtensions less`.
+- **Example**: `typed-scss-modules src --excludeExtensions less`
+
+`--excludeExtensions` will be ignored if specify together with `--includeExtensions`.
+
+#### `--configFile`
+
+- **Type**: `string`
+- **Default**: _none_
+- **Example**: `typed-scss-modules src --configFile custom/path/to/config.js`
+
+Explicitly tell the program to find the configuration file in specific location. Using this option in configuration file is pointless. The program will never find it if you do so.
+
+### Modified Config options
+
+#### `importer`
+
+- **Type**: `Importer | Importer[]`
+- **Default**: _none_
+
+An `Importer` could be the `SyncImporter` for `node-sass` and `sass` (`sass` has marked it as `LegacySyncImporter`) or `Importer<'sync'>|FileImporter<'sync'>` for the latest version of `sass`.
+
+This option is modified for those who use the latest version of `sass`. Since the render function `renderSync` of `sass` is marked as legacy and is suggested to use `compileString` instead, this package tries to adapt that changes. Thus, if you are using `sass` with the support of `compileString`, you are suggested to write the importer in the new way. This package will try to convert the legacy importer to the latest one but it is **NOT** guaranteed to work. If you really want to use the legacy importer, you should use `node-sass` instead since `sass` may end the support of legacy code at any time.
+
+Check more for [`LegacySyncImporter`](https://sass-lang.com/documentation/js-api/modules#LegacySyncImporter), [`Importer`](https://sass-lang.com/documentation/js-api/interfaces/Importer) and [`FileImporter`](https://sass-lang.com/documentation/js-api/interfaces/FileImporter) from `Dart SASS`.
+
+Check [here](#importer-1) for original description of `importer`.
+
+### Added Config options
+
+#### `plugins`
+
+- **Type**: `PostCSS.AcceptedPlugin[]`
+- **Default**: _none_
+
+This package use `css-modules-loader-core` to extract data in `CSS` files. It allows user to provide `PostCSS` plugins for extra features. Check [here](https://github.com/css-modules/css-modules-loader-core#new-coreplugins) for how to use it.
+
+> :warning::warning::warning: `css-modules-loader-core` depends on `PostCSS v6`. Latest plugins for `PostCSS v8` are not compatible and will throw error if you try to use them. If you are writing your own plugin or downloading one from `NPM`, please ensure it is compatible with `PostCSS v6` or you can modify [`postcss` option](#postcss).
+
+#### `postcss`
+
+- **Type**: `"v6" | "v8"`
+- **Default**: `"v6"`
+
+> :warning::warning::warning: This option only tries to solve the incompatibility when using `PostCSS` plugins. Error may still happen even if the config is set correctly.
+
+If `postcss` is set to `v8`, this package will use [@demching113/css-modules-loader-core](https://github.com/DemChing/css-modules-loader-core) to extract data. That package is basically the same as `css-modules-loader-core` but depends on `PostCSS v8`.
+
+#### `parsers`
+
+- **Type**: `{ [fileExtension: string]: (src: string) => string; }`
+- **Default**: _none_
+
+Provide custom parser for specific file extension before extracting type definition. Similar to what `plugins` does but `parsers` does not depend on `PostCSS`. For those using `SugarSS`, you may want something like this:
+
+```js
+let options = {
+  // other options
+  parsers: {
+    sss: require("sugarss").parse,
+  },
+};
+```
+
+## Extra Examples
+
+Here only list the examples of added features. For more, check [here](#examples)
+
+- [Basic example](examples/awesome-typed-css-modules/basic/)
+- [Parsers example](examples/awesome-typed-css-modules/parsers/)
+- [PostCSS v6 Plugins example](examples/awesome-typed-css-modules/plugins/)
+- [PostCSS v8 Plugins example](examples/awesome-typed-css-modules/plugins-v8/)
+
+# Original Readme
+
+Below are from the original package. Since most of the options are the same, simplily replace `typed-scss-modules` to `awesome-typed-css-modules` to use this package.
+
 # 🎁 typed-scss-modules
 
 [![Build Status](https://travis-ci.com/skovy/typed-scss-modules.svg?branch=master)](https://travis-ci.com/skovy/typed-scss-modules)

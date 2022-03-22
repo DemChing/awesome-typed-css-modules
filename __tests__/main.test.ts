@@ -51,6 +51,7 @@ describeAllImplementations((implementation) => {
         aliasPrefixes: {
           "~": "nested-styles/",
         },
+        crlf: false,
       });
 
       expect(alerts.error).not.toHaveBeenCalled();
@@ -92,6 +93,7 @@ describeAllImplementations((implementation) => {
         aliasPrefixes: {
           "~": "nested-styles/",
         },
+        crlf: false,
       });
 
       expect(alerts.error).not.toHaveBeenCalled();
@@ -130,6 +132,7 @@ describeAllImplementations((implementation) => {
           "~": "nested-styles/",
         },
         exportType: "default",
+        crlf: false,
       });
 
       expect(alerts.error).not.toHaveBeenCalled();
@@ -137,7 +140,7 @@ describeAllImplementations((implementation) => {
       // Transform the calls into a more readable format for the snapshot.
       const contents = writeFileSyncSpy.mock.calls
         .map(([fullFilePath, contents]) => ({
-          path: path.relative(__dirname, fullFilePath),
+          path: slash(path.relative(__dirname, fullFilePath)),
           contents,
         }))
         // Sort to avoid flakey snapshot tests if call order changes.
@@ -158,6 +161,7 @@ describeAllImplementations((implementation) => {
           "~": "nested-styles/",
         },
         outputFolder: "__generated__",
+        crlf: false,
       });
 
       expect(alerts.error).not.toHaveBeenCalled();
@@ -166,7 +170,7 @@ describeAllImplementations((implementation) => {
       // Transform the calls into a more readable format for the snapshot.
       const contents = writeFileSyncSpy.mock.calls
         .map(([fullFilePath, contents]) => ({
-          path: path.relative(__dirname, fullFilePath),
+          path: slash(path.relative(__dirname, fullFilePath)),
           contents,
         }))
         // Sort to avoid flakey snapshot tests if call order changes.

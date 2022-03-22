@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import slash from "slash";
 
 import { writeFile } from "../../lib/core";
 
@@ -36,9 +37,8 @@ describeAllImplementations((implementation) => {
         outputFolder: null,
       });
 
-      const expectedPath = path.join(
-        process.cwd(),
-        "__tests__/dummy-styles/style.scss.d.ts"
+      const expectedPath = slash(
+        path.join(process.cwd(), "__tests__/dummy-styles/style.scss.d.ts")
       );
       expect(fs.writeFileSync).toBeCalledWith(
         expectedPath,
@@ -98,9 +98,11 @@ describeAllImplementations((implementation) => {
           outputFolder: "__generated__",
         });
 
-        const expectedPath = path.join(
-          process.cwd(),
-          "__generated__/__tests__/dummy-styles/style.scss.d.ts"
+        const expectedPath = slash(
+          path.join(
+            process.cwd(),
+            "__generated__/__tests__/dummy-styles/style.scss.d.ts"
+          )
         );
         expect(fs.writeFileSync).toBeCalledWith(
           expectedPath,
@@ -114,9 +116,8 @@ describeAllImplementations((implementation) => {
 
     describe("when --updateStaleOnly is passed", () => {
       const testFile = path.resolve(__dirname, "..", "dummy-styles/style.scss");
-      const expectedPath = path.join(
-        process.cwd(),
-        "__tests__/dummy-styles/style.scss.d.ts"
+      const expectedPath = slash(
+        path.join(process.cwd(), "__tests__/dummy-styles/style.scss.d.ts")
       );
       beforeEach(() => {
         jest.spyOn(fs, "statSync");

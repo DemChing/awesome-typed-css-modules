@@ -1,10 +1,15 @@
-import fs from "fs";
 import camelcase from "camelcase";
 import { paramCase } from "param-case";
 
-import { sourceToClassNames } from "./source-to-class-names";
-import { Implementations, getImplementation } from "../implementations";
+import { CorePluginsType, sourceToClassNames } from "./source-to-class-names";
+import {
+  Implementations,
+  getImplementation,
+  Preprocessors,
+  getPreprocessor,
+} from "../implementations";
 import { customImporters, Aliases, SASSImporterOptions } from "./importer";
+import { ParsersType, PostCSSVersion } from "../typescript";
 
 export type ClassName = string;
 export type ClassNames = ClassName[];
@@ -15,6 +20,9 @@ export interface SASSOptions extends SASSImporterOptions {
   additionalData?: string;
   includePaths?: string[];
   nameFormat?: NameFormat;
+  plugins?: CorePluginsType;
+  parsers?: ParsersType;
+  postcss?: PostCSSVersion;
   implementation: Implementations;
 }
 
@@ -40,29 +48,37 @@ export const fileToClassNames = (
     aliases,
     aliasPrefixes,
     importer,
+    plugins,
+    postcss,
+    parsers,
   }: SASSOptions = {} as SASSOptions
 ) => {
   const transformer = classNameTransformer(nameFormat);
-  const { renderSync } = getImplementation(implementation);
+  let preprocessor: Preprocessors = getPreprocessor(file, implementation);
+  const { render } = getImplementation(preprocessor);
 
-  return new Promise<ClassNames>((resolve, reject) => {
+  return new Promise<ClassNames>(async (resolve, reject) => {
     try {
-      const data = fs.readFileSync(file).toString();
-      const result = renderSync({
-        file,
-        data: additionalData ? `${additionalData}\n${data}` : data,
-        includePaths,
-        importer: customImporters({ aliases, aliasPrefixes, importer }),
-      });
+      const result = await render(
+        {
+          file,
+          additionalData,
+          includePaths,
+          importer: customImporters({ aliases, aliasPrefixes, importer }),
+        },
+        parsers
+      );
 
-      sourceToClassNames(result.css).then(({ exportTokens }) => {
-        const classNames = Object.keys(exportTokens);
-        const transformedClassNames = classNames
-          .map(transformer)
-          .sort((a, b) => a.localeCompare(b));
+      sourceToClassNames(result, file, postcss, plugins)
+        .then(({ exportTokens }) => {
+          const classNames = Object.keys(exportTokens);
+          const transformedClassNames = classNames
+            .map(transformer)
+            .sort((a, b) => a.localeCompare(b));
 
-        resolve(transformedClassNames);
-      });
+          resolve(transformedClassNames);
+        })
+        .catch(reject);
     } catch (err) {
       reject(err);
       return;

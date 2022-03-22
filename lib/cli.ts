@@ -6,15 +6,20 @@ import { Aliases, NAME_FORMATS } from "./sass";
 import { EXPORT_TYPES, QUOTE_TYPES, LOG_LEVELS } from "./typescript";
 import { main } from "./main";
 import { IMPLEMENTATIONS } from "./implementations";
+import { FileExtensions } from "./core";
 
 const { _: patterns, ...rest } = yargs
   .usage(
-    "Generate .scss.d.ts from CSS module .scss files.\nUsage: $0 <glob pattern> [options]"
+    "Generate .d.ts from CSS module .css/.scss/.sass/.less/.styl/.sss files.\nUsage: $0 <glob pattern> [options]"
   )
-  .example("$0 src", "All .scss files at any level in the src directory")
+  .example("$0 src", "All css related files at any level in the src directory")
   .example(
     "$0 src/**/*.scss",
     "All .scss files at any level in the src directory"
+  )
+  .example(
+    "$0 src --includeExtensions scss sass",
+    "All .scss and .sass files at any level in the src directory"
   )
   .example(
     "$0 src/**/*.scss --watch",
@@ -140,6 +145,29 @@ const { _: patterns, ...rest } = yargs
     string: true,
     describe:
       "Inserts text at the top of every output file for documentation purposes.",
+  })
+  .option("configFile", {
+    string: true,
+    describe:
+      "Define a custom location for the configuration file (relative to current working directory)",
+  })
+  .option("crlf", {
+    boolean: true,
+    describe: "Use \\r\\n as newline character",
+  })
+  .options("includeExtensions", {
+    choices: FileExtensions,
+    string: true,
+    array: true,
+    describe:
+      "Process files that match the glob pattern and the file extensions. Accept multiple extensions.",
+  })
+  .options("excludeExtensions", {
+    choices: FileExtensions,
+    string: true,
+    array: true,
+    describe:
+      "Process files that match the glob pattern but not the file extensions. Accept multiple extensions.",
   })
   .parseSync();
 

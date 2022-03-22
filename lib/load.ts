@@ -14,7 +14,11 @@ import {
 } from "./typescript";
 import { getDefaultImplementation } from "./implementations";
 
+type ValidConfig = {} | ConfigOptions;
+
 const VALID_CONFIG_FILES = [
+  "awesome-typed-css-modules.config.ts",
+  "awesome-typed-css-modules.config.js",
   "typed-scss-modules.config.ts",
   "typed-scss-modules.config.js",
 ];
@@ -28,11 +32,11 @@ const joycon = new JoyCon();
  *  - Default export: `export default {}`
  *  - `module.exports = {}`
  */
-export const loadConfig = async (): Promise<{} | ConfigOptions> => {
+export const loadConfig = async (file?: string): Promise<ValidConfig> => {
   const CURRENT_WORKING_DIRECTORY = process.cwd();
 
   const configPath = await joycon.resolve(
-    VALID_CONFIG_FILES,
+    (file ? [file] : []).concat(VALID_CONFIG_FILES),
     CURRENT_WORKING_DIRECTORY,
     path.parse(CURRENT_WORKING_DIRECTORY).root
   );

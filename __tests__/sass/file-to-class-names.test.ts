@@ -83,13 +83,15 @@ describeAllImplementations((implementation) => {
           }
         );
 
-        expect(result).toEqual([
-          "myCustomClass",
-          "nestedAnother",
-          "nestedClass",
-          "someClass",
-          "someStyles",
-        ]);
+        expect(result.sort()).toEqual(
+          [
+            "myCustomClass",
+            "nestedAnother",
+            "nestedClass",
+            "someClass",
+            "someStyles",
+          ].sort()
+        );
       });
     });
 
@@ -108,13 +110,15 @@ describeAllImplementations((implementation) => {
           }
         );
 
-        expect(result).toEqual([
-          "myCustomClass",
-          "nestedAnother",
-          "nestedClass",
-          "nestedStyles",
-          "someStyles",
-        ]);
+        expect(result.sort()).toEqual(
+          [
+            "myCustomClass",
+            "nestedAnother",
+            "nestedClass",
+            "nestedStyles",
+            "someStyles",
+          ].sort()
+        );
       });
     });
 

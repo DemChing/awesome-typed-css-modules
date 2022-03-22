@@ -1,8 +1,11 @@
-import glob from "glob";
-
 import { alerts } from "./alerts";
+import { getFiles } from "./get-files";
 import { ConfigOptions } from "./types";
 import { writeFile } from "./write-file";
+
+type GenerateResult = {
+  [file: string]: string | undefined;
+};
 
 /**
  * Given a file glob generate the corresponding types once.
@@ -13,21 +16,12 @@ import { writeFile } from "./write-file";
 export const generate = async (
   pattern: string,
   options: ConfigOptions
-): Promise<void> => {
-  // Find all the files that match the provided pattern.
-  const files = glob.sync(pattern, { ignore: options.ignore });
+): Promise<GenerateResult> => {
+  let result: GenerateResult = {};
+  const files = getFiles(pattern, options.ignore);
 
-  if (!files || !files.length) {
-    alerts.error("No files found.");
-    return;
-  }
-
-  // This case still works as expected but it's easy to do on accident so
-  // provide a (hopefully) helpful warning.
-  if (files.length === 1) {
-    alerts.warn(
-      `Only 1 file found for ${pattern}. If using a glob pattern (eg: dir/**/*.scss) make sure to wrap in quotes (eg: "dir/**/*.scss").`
-    );
+  if (!files) {
+    return result;
   }
 
   alerts.success(
@@ -37,5 +31,18 @@ export const generate = async (
   );
 
   // Wait for all the type definitions to be written.
-  await Promise.all(files.map((file) => writeFile(file, options)));
+  let results = await Promise.all(
+      files.map((file) => writeFile(file, options))
+    ),
+    generated = 0;
+  results.forEach((typeFile, i) => {
+    result[files[i]] = typeFile;
+    generated += typeFile ? 1 : 0;
+  });
+
+  alerts.info(
+    `Generated ${generated} type definition${generated > 1 ? `s` : ""}.`
+  );
+
+  return result;
 };

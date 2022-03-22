@@ -1,18 +1,27 @@
 {
-  "name": "typed-scss-modules",
+  "name": "awesome-typed-css-modules",
   "version": "0.0.0",
-  "description": "TypeScript type definition generator for SCSS CSS Modules",
-  "main": "index.js",
-  "author": "Spencer Miskoviak <smiskoviak@gmail.com>",
+  "description": "TypeScript type definition generator for Stylus/LESS/SASS/SCSS CSS Modules",
+  "main": "dist/lib/main.js",
+  "author": "Dem Ching",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skovy/typed-scss-modules.git"
+    "url": "https://github.com/demching/typed-scss-modules.git"
   },
-  "homepage": "https://github.com/skovy/typed-scss-modules.git#readme",
+  "homepage": "https://github.com/demching/typed-scss-modules.git#readme",
   "keywords": [
     "scss",
+    "sass",
+    "less",
+    "styl",
+    "stylus",
+    "sss",
+    "sugarss",
     "css modules",
+    "sass modules",
+    "less modules",
+    "stylus modules",
     "cli",
     "typescript",
     "type generator",
@@ -21,6 +30,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "awesome-typed-css-modules": "ts-node ./lib/cli.ts",
     "typed-scss-modules": "ts-node ./lib/cli.ts",
     "clean": "rm -rf ./dist",
     "build": "yarn clean && tsc && chmod +x dist/lib/cli.js",
@@ -33,7 +43,8 @@
     "dist/lib"
   ],
   "bin": {
-    "typed-scss-modules": "./dist/lib/cli.js"
+    "typed-scss-modules": "./dist/lib/cli.js",
+    "awesome-typed-css-modules": "./dist/lib/cli.js"
   },
   "devDependencies": {
     "@babel/core": "^7.17.2",
@@ -46,38 +57,58 @@
     "@types/css-modules-loader-core": "^1.1.0",
     "@types/glob": "^7.2.0",
     "@types/jest": "^27.4.0",
+    "@types/less": "^3.0.3",
     "@types/node": "^17.0.18",
     "@types/node-sass": "^4.11.2",
     "@types/prettier": "^2.4.4",
     "@types/reserved-words": "^0.1.0",
-    "@types/sass": "^1.16.0",
+    "@types/sass": "^1.43.1",
+    "@types/stylus": "^0.48.36",
     "@types/yargs": "^17.0.8",
     "babel-jest": "^27.5.1",
     "babel-plugin-transform-import-meta": "^2.1.1",
     "husky": "^7.0.4",
     "jest": "^27.5.1",
+    "less": "^3.13.1",
     "lint-staged": "^12.3.4",
-    "node-sass": "4.12.0",
+    "node-sass": "^7.0.1",
     "node-sass-json-importer": "^4.3.0",
+    "postcss-nested": "4.2.3",
+    "postcss-nested-5": "npm:postcss-nested@5",
     "prettier": "^2.5.1",
     "sass": "^1.49.7",
     "semantic-release": "^17.4.7",
+    "stylus": "^0.54.8",
+    "sugarss": "^1.0.1",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5"
   },
   "peerDependencies": {
-    "node-sass": "^4.12.0",
-    "sass": "^1.49.7"
+    "less": ">= 3.13.1",
+    "node-sass": ">= 4.12.0",
+    "sass": ">= 1.49.7",
+    "stylus": ">= 0.54.8",
+    "sugarss": ">= 1.0.1"
   },
   "peerDependenciesMeta": {
+    "less": {
+      "optional": true
+    },
     "node-sass": {
       "optional": true
     },
     "sass": {
       "optional": true
+    },
+    "stylus": {
+      "optional": true
+    },
+    "sugarss": {
+      "optional": true
     }
   },
   "dependencies": {
+    "@demching113/css-modules-loader-core": "^2.0.1",
     "bundle-require": "^3.0.4",
     "camelcase": "^6.3.0",
     "chalk": "4.1.2",
