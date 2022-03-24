@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/demching/typed-scss-modules.git"
+    "url": "https://github.com/demching/awesome-typed-css-modules.git"
   },
-  "homepage": "https://github.com/demching/typed-scss-modules.git#readme",
+  "homepage": "https://github.com/demching/awesome-typed-css-modules.git#readme",
   "keywords": [
     "scss",
     "sass",
